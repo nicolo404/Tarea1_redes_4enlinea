@@ -1,5 +1,5 @@
-Grupo 6
-Nicolás Javier Silva Pereira
+Grupo 6: 
+Nicolás Javier Silva Pereira,   
 Sebastián Henry Garrido Mariñán
 
 ##Conecta 4 - Cliente/Servidor
