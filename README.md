@@ -11,7 +11,8 @@ Este proyecto implementa el juego Conecta 4 mediante el modelo Cliente/Servidor 
     Clonar el repositorio: git clone https://github.com/nicolo404/Tarea1_redes_4enlinea.git
 
     Compilar el proyecto: instrucciones en archivo Makefile, para compilar tanto servidor como cliente
-
+    servidor: g++ -std=c++11 -o servidor server.cpp game.cpp
+    cliente:  g++ -std=c++11 -o cliente client.cpp game.cpp
 
 #Uso
     Servidor: Para iniciar el servidor, ejecute el siguiente comando:
