@@ -1,57 +1,27 @@
 #include "game.h"
 #include <sstream>
 
-Game::Game() {
-    resetBoard();
-}
+Game::Game() : board(6, std::vector<char>(7, ' ')) {}
 
-void Game::resetBoard() {
-    board = std::vector<std::vector<char>>(ROWS, std::vector<char>(COLS, ' '));
-}
-
-bool Game::dropPiece(int col, char player) {
-    if (col < 0 || col >= COLS || board[0][col] != ' ') {
+bool Game::dropPiece(int col, char piece) {
+    if (col < 0 || col >= 7 || board[0][col] != ' ') {
         return false;
     }
-    for (int row = ROWS - 1; row >= 0; --row) {
+    for (int row = 5; row >= 0; --row) {
         if (board[row][col] == ' ') {
-            board[row][col] = player;
+            board[row][col] = piece;
             return true;
         }
     }
     return false;
 }
 
-bool Game::checkWin(char player) {
-    for (int row = 0; row < ROWS; ++row) {
-        for (int col = 0; col < COLS; ++col) {
-            if (checkLine(row, col, 1, 0, player) || 
-                checkLine(row, col, 0, 1, player) || 
-                checkLine(row, col, 1, 1, player) || 
-                checkLine(row, col, 1, -1, player)) {
-                return true;
-            }
-        }
-    }
-    return false;
+bool Game::isValidMove(int col) const {
+    return col >= 0 && col < 7 && board[0][col] == ' ';
 }
 
-bool Game::checkLine(int startRow, int startCol, int deltaRow, int deltaCol, char player) {
-    int count = 0;
-    for (int i = 0; i < 4; ++i) {
-        int row = startRow + i * deltaRow;
-        int col = startCol + i * deltaCol;
-        if (row >= 0 && row < ROWS && col >= 0 && col < COLS && board[row][col] == player) {
-            count++;
-        } else {
-            break;
-        }
-    }
-    return count == 4;
-}
-
-bool Game::isBoardFull() {
-    for (int col = 0; col < COLS; ++col) {
+bool Game::isBoardFull() const {
+    for (int col = 0; col < 7; ++col) {
         if (board[0][col] == ' ') {
             return false;
         }
@@ -59,17 +29,46 @@ bool Game::isBoardFull() {
     return true;
 }
 
-std::string Game::getBoardAsString() {
-    std::ostringstream oss;
-    for (const auto& row : board) {
-        for (const auto& cell : row) {
-            oss << (cell == ' ' ? '.' : cell) << ' ';
+bool Game::checkWin(char piece) const {
+    for (int row = 0; row < 6; ++row) {
+        for (int col = 0; col < 7; ++col) {
+            if (board[row][col] == piece) {
+                if (checkDirection(row, col, 1, 0, piece) || // vertical
+                    checkDirection(row, col, 0, 1, piece) || // horizontal
+                    checkDirection(row, col, 1, 1, piece) || // diagonal down-right
+                    checkDirection(row, col, 1, -1, piece)) { // diagonal down-left
+                    return true;
+                }
+            }
         }
-        oss << '\n';
     }
-    return oss.str();
+    return false;
 }
 
+bool Game::checkDirection(int row, int col, int rowDir, int colDir, char piece) const {
+    int count = 0;
+    for (int i = 0; i < 4; ++i) {
+        int r = row + i * rowDir;
+        int c = col + i * colDir;
+        if (r < 0 || r >= 6 || c < 0 || c >= 7 || board[r][c] != piece) {
+            return false;
+        }
+    }
+    return true;
+}
 
-
-
+std::string Game::getBoardAsString() const {
+    std::stringstream ss;
+    ss << "TABLERO\n";
+    int aux = 0;
+    for (const auto& row : board) {
+        ss << ++aux << ' ';
+        for (char cell : row) {
+            ss << cell << ' ';
+        }
+        ss << '\n';
+    }
+    ss << "  -------------\n";
+    ss << "  1 2 3 4 5 6 7\n";
+    return ss.str();
+}

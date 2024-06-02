@@ -7,17 +7,15 @@
 class Game {
 public:
     Game();
-    bool dropPiece(int col, char player);
-    bool checkWin(char player);
-    bool isBoardFull();
-    std::string getBoardAsString();
-    void resetBoard();
+    bool dropPiece(int col, char piece);
+    bool isValidMove(int col) const;
+    bool checkWin(char piece) const;
+    bool isBoardFull() const;
+    std::string getBoardAsString() const;
 
 private:
     std::vector<std::vector<char>> board;
-    const int ROWS = 6;
-    const int COLS = 7;
-    bool checkLine(int startRow, int startCol, int deltaRow, int deltaCol, char player);
+    bool checkDirection(int row, int col, int rowDir, int colDir, char piece) const;
 };
 
-#endif // GAME_H
+#endif

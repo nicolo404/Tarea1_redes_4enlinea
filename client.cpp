@@ -30,37 +30,57 @@ int main(int argc, char* argv[]) {
     }
 
     char buffer[256];
+
+    // Receive initial message indicating who starts
+    int bytesReceived = recv(clientSocket, buffer, 256, 0);
+    if (bytesReceived <= 0) {
+        std::cerr << "Error receiving data from server or server disconnected" << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+    buffer[bytesReceived] = '\0';
+    std::cout << buffer << std::endl;
+
+    // Receive initial board state
+    bytesReceived = recv(clientSocket, buffer, 256, 0);
+    if (bytesReceived <= 0) {
+        std::cerr << "Error receiving data from server or server disconnected" << std::endl;
+        close(clientSocket);
+        return 1;
+    }
+    buffer[bytesReceived] = '\0';
+    std::cout << buffer << std::endl;
+
     while (true) {
-        int bytesReceived = recv(clientSocket, buffer, 256, 0);
-        if (bytesReceived <= 0) {
-            std::cerr << "Error receiving data from server or server disconnected" << std::endl;
-            break;
-        }
-        buffer[bytesReceived] = '\0';
-        std::cout << buffer << std::endl;
-
-        if (strstr(buffer, "wins!") != nullptr || strstr(buffer, "Draw!") != nullptr) {
-            break;
-        }
-
-        std::cout << "Indique columna (0-6): ";
+        std::cout << "Indique columna(1-7): ";
         int col;
         std::cin >> col;
 
-        std::string colStr = std::to_string(col);
+        std::string colStr = std::to_string(col-1);
         send(clientSocket, colStr.c_str(), colStr.size(), 0);
 
-        // Receive updated board after the move
+        // Receive updated board after client's and server's moves
         bytesReceived = recv(clientSocket, buffer, 256, 0);
         if (bytesReceived <= 0) {
             std::cerr << "Error receiving updated board from server or server disconnected" << std::endl;
             break;
         }
         buffer[bytesReceived] = '\0';
-        std::cout << "Tablero, 1) Jugada del Cliente, 2) Jugada del Servidor: " << std::endl;
         std::cout << buffer << std::endl;
+
+        // Check for win or draw message
+        if (strstr(buffer, "gana") != nullptr || strstr(buffer, "Empate!") != nullptr) {
+            std::cout << buffer;
+            bytesReceived = recv(clientSocket, buffer, 256, 0); // Receive end game message
+            if (bytesReceived > 0) {
+                buffer[bytesReceived] = '\0';
+                std::cout << buffer;
+            }
+            break;
+        }
     }
 
     close(clientSocket);
     return 0;
 }
+
